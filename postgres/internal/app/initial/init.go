@@ -34,6 +34,7 @@ func NewApp() *App {
 	fiberApp.Use(logger.New())
 
 	fiberApp.Get("/hello-world", func(c fiber.Ctx) error {
+
 		return c.JSON(fiber.Map{
 			"message": "Hello, World!",
 		})
@@ -54,13 +55,15 @@ func (i *App) Stop() {
 		log.Fatalf("error stopping server: %v", err)
 	}
 
-	sqlDB, err := i.client.postgres.DB()
-	if err != nil {
-		log.Fatalf("error getting postgres client: %v", err)
-	}
+	for _, shard := range i.client.shards {
+		sqlDB, err := shard.DB()
+		if err != nil {
+			log.Fatalf("error getting postgres client: %v", err)
+		}
 
-	if err := sqlDB.Close(); err != nil {
-		log.Fatalf("error closing postgres client: %v", err)
+		if err := sqlDB.Close(); err != nil {
+			log.Fatalf("error closing postgres client: %v", err)
+		}
 	}
 
 	log.Println("server stopped")

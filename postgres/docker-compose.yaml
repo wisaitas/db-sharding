@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: p@ssw0rd
       POSTGRES_DB: poc-db
     volumes:
-      - postgres_shard_0_data:/var/lib/postgresql/data
+      - postgres_shard_0_data:/var/lib/postgresql
 
   postgres-shard-1:
     image: postgres:18-alpine
@@ -19,8 +19,12 @@ services:
       POSTGRES_PASSWORD: p@ssw0rd
       POSTGRES_DB: poc-db
     volumes:
-      - postgres_shard_1_data:/var/lib/postgresql/data
+      - postgres_shard_1_data:/var/lib/postgresql
 
 volumes:
   postgres_shard_0_data:
   postgres_shard_1_data:
+
+networks:
+  postgres-network:
+    driver: bridge

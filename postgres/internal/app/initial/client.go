@@ -9,16 +9,25 @@ import (
 )
 
 type client struct {
-	postgres *gorm.DB
+	shards map[int]*gorm.DB
 }
 
 func newClient() *client {
-	dbClient, err := postgres.NewPostgreSQL(app.Config.Postgres)
+	shards := make(map[int]*gorm.DB)
+
+	db0, err := postgres.NewPostgreSQL(app.Config.Shard0.Postgres)
 	if err != nil {
-		log.Fatalf("error creating postgres client: %v", err)
+		log.Fatalf("error creating postgres shard 0 client: %v", err)
 	}
+	shards[0] = db0
+
+	db1, err := postgres.NewPostgreSQL(app.Config.Shard1.Postgres)
+	if err != nil {
+		log.Fatalf("error creating postgres shard 1 client: %v", err)
+	}
+	shards[1] = db1
 
 	return &client{
-		postgres: dbClient,
+		shards: shards,
 	}
 }
