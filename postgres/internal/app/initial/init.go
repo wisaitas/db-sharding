@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/joho/godotenv"
+	"github.com/wisaitas/db-sharding/pkg/db/postgres"
 	"github.com/wisaitas/db-sharding/postgres/internal/app"
 )
 
@@ -55,15 +56,12 @@ func (i *App) Stop() {
 		log.Fatalf("error stopping server: %v", err)
 	}
 
-	for _, shard := range i.client.shards {
-		sqlDB, err := shard.DB()
-		if err != nil {
-			log.Fatalf("error getting postgres client: %v", err)
-		}
+	if err := postgres.Close(i.client.postgresShard1); err != nil {
+		log.Fatal(err)
+	}
 
-		if err := sqlDB.Close(); err != nil {
-			log.Fatalf("error closing postgres client: %v", err)
-		}
+	if err := postgres.Close(i.client.postgresShard2); err != nil {
+		log.Fatal(err)
 	}
 
 	log.Println("server stopped")

@@ -49,3 +49,16 @@ func NewPostgreSQL(config Config) (*gorm.DB, error) {
 
 	return db, nil
 }
+
+func Close(db *gorm.DB) error {
+	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("[postgres] failed to get sql db: %w", err)
+	}
+
+	if err := sqlDB.Close(); err != nil {
+		return fmt.Errorf("[postgres] failed to close sql db: %w", err)
+	}
+
+	return nil
+}
